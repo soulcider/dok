@@ -10,13 +10,12 @@ public class ResourceUtil {
 
   public static final String SEPARATOR = "/";
 
-  public static final ClassLoader[] CLASSLOADER = new ClassLoader[] {
-      Thread.currentThread().getContextClassLoader(),
-      ResourceUtil.class.getClassLoader(),
-      ClassLoader.getSystemClassLoader() };
+	public static final ClassLoader[] CLASSLOADER = new ClassLoader[] {
+			Thread.currentThread().getContextClassLoader(),
+			ResourceUtil.class.getClassLoader(),
+			ClassLoader.getSystemClassLoader() };
 
   public static URL getResource(String resource) {
-
     for (ClassLoader cl : CLASSLOADER) {
       System.out.printf("Index : %s%n", (cl==null?"NULL":cl.getClass().getName()));
       if(cl != null) {
@@ -51,7 +50,6 @@ public class ResourceUtil {
   }
 
   public static InputStream getResourceAsStream(String resource) {
-
     for (ClassLoader cl : CLASSLOADER) {
       System.out.printf("Index : %s%n", (cl==null?"NULL":cl.getClass().getName()));
       if(cl != null) {
