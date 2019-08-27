@@ -19,16 +19,14 @@ public class ResourceUtil {
 
     for (ClassLoader cl : CLASSLOADER) {
       System.out.printf("Index : %s%n", (cl==null?"NULL":cl.getClass().getName()));
-      if(null != cl) {
-        // try to find the resource as passed
-        URL returnValue = cl.getResource(resource);
-        // now, some class loaders want this leading "/", so we'll add it and try again if we didn't find the resource
-        if(null == returnValue) {
-          returnValue = cl.getResource(SEPARATOR + resource);
-        }
+      if(cl != null) {
+    	  URL url = cl.getResource(resource);
+          if(url == null) {
+        	  url = cl.getResource(SEPARATOR + resource);
+          }
 
-        if(null != returnValue) {
-          return returnValue;
+          if(url != null) {
+          return url;
         }
       }
     }
@@ -39,15 +37,13 @@ public class ResourceUtil {
     for (ClassLoader cl : CLASSLOADER) {
       System.out.printf("Index : %s%n", (cl==null?"NULL":cl.getClass().getName()));
       if(null != cl) {
-        // try to find the resource as passed
-        URL returnValue = cl.getResource(resource);
-        // now, some class loaders want this leading "/", so we'll add it and try again if we didn't find the resource
-        if(null == returnValue) {
-          returnValue = cl.getResource(SEPARATOR + resource);
-        }
+          URL url = cl.getResource(resource);
+          if(url == null) {
+        	  url = cl.getResource(SEPARATOR + resource);
+          }
 
-        if(null != returnValue) {
-          return new File(returnValue.getFile());
+          if(url != null) {
+          return new File(url.getFile());
         }
       }
     }
@@ -58,16 +54,14 @@ public class ResourceUtil {
 
     for (ClassLoader cl : CLASSLOADER) {
       System.out.printf("Index : %s%n", (cl==null?"NULL":cl.getClass().getName()));
-      if(null != cl) {
-        // try to find the resource as passed
-        InputStream returnValue = cl.getResourceAsStream(resource);
-        // now, some class loaders want this leading "/", so we'll add it and try again if we didn't find the resource
-        if(null == returnValue) {
-          returnValue = cl.getResourceAsStream(SEPARATOR + resource);
+      if(cl != null) {
+        InputStream in = cl.getResourceAsStream(resource);
+        if(in == null) {
+        	in = cl.getResourceAsStream(SEPARATOR + resource);
         }
 
-        if(null != returnValue) {
-          return returnValue;
+        if(in != null) {
+          return in;
         }
       }
     }
