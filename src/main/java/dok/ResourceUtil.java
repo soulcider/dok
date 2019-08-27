@@ -16,10 +16,8 @@ public class ResourceUtil {
 
     for (ClassLoader cl : CLASSLOADER) {
       if(null != cl) {
-
         // try to find the resource as passed
         InputStream returnValue = cl.getResourceAsStream(resource);
-
         // now, some class loaders want this leading "/", so we'll add it and try again if we didn't find the resource
         if(null == returnValue) {
           returnValue = cl.getResourceAsStream(SEPERATOR + resource);
