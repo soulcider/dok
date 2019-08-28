@@ -90,7 +90,8 @@ public class HttpConnector {
             //}
             return status;
         } catch(Exception ex) {
-            throw new RuntimeException("URLConnector Post Error", ex);
+            //throw new RuntimeException("URLConnector Post Error", ex);
+            return 909;
         }
     }
 
@@ -137,7 +138,8 @@ public class HttpConnector {
             //}
             return status;
         } catch(Exception ex) {
-            throw new RuntimeException("URLConnector Post Error", ex);
+            //throw new RuntimeException("URLConnector Post Error", ex);
+            return 909;
         }
     }
 

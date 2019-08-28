@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 public class HttpLoadRunner {
@@ -36,8 +37,8 @@ public class HttpLoadRunner {
         @Override
         public String call() throws Exception {
             Counter count = new Counter();
-            ExecutorService executor = Executors.newCachedThreadPool();
-            Runnable runner = () -> {
+            //ExecutorService executor = Executors.newCachedThreadPool();
+            //Runnable runner = () -> {
                 for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
                     if(interval > 0) {
                         try {
@@ -45,22 +46,22 @@ public class HttpLoadRunner {
                         } catch(Exception ex) {
                         }
                     }
-                    new Thread(() -> {
-                        count.increment();
-                        int status = urlc.get();
-                        //String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
-                        if(status >= 200 && status < 300) {
-                            count.incrementSuccess();
-                        } else {
-                            count.incrementFailure();
-                        }
-                        System.out.printf(" > %s-%06d: %s %n", name, count.value(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
-                    }).start();
+                    //
+                    count.increment();
+                    int status = urlc.get();
+                    //String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
+                    if(status >= 200 && status < 300) {
+                        count.incrementSuccess();
+                    } else if(status == 909) {
+                        System.err.printf("     - URLConnector Error");
+                        count.incrementFailure();
+                    }
+                    System.out.printf(" > %s-%06d: %s %n", name, count.value(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
                 }
-            };
-            executor.execute(runner);
-            executor.shutdown();
-            return String.format("[%s] Try=%d (success=%d, failure:%d)", name, count.value(), count.getSuccess(), count.getFailure());
+            //};
+            //executor.execute(runner);
+            //executor.shutdown();
+            return String.format("[%s] Clicks=%d (success=%d, failure:%d)", name, count.value(), count.getSuccess(), count.getFailure());
         }
 
 
@@ -113,15 +114,29 @@ public class HttpLoadRunner {
             tasks.add(caller);
         }
 
+        List<Future<String>> futures = null;
         ExecutorService executor = Executors.newFixedThreadPool(userCount);
         try {
             System.out.println("Execute...");
-            executor.invokeAll(tasks);
+            futures = executor.invokeAll(tasks);
             executor.shutdown();
             //executor.awaitTermination(10, TimeUnit.MINUTES);
         } catch(Exception e) {
             //e.printStackTrace();
             System.err.println(e.getMessage());
+        }
+
+        if(futures != null && futures.size() > 0) {
+            System.out.println("Result...");
+            for(Future<String> future : futures) {
+                String result = null;
+                try {
+                    result = future.get();
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+                System.out.printf(" > %s%n", result);
+            }
         }
     }
 
@@ -129,17 +144,16 @@ public class HttpLoadRunner {
         int userCount;
         int clickCount;
         long interval;
-        //String query = "\uC870\uAD6D\uD798\uB0B4\uC138\uC694";
-        //String query = "\uAE30\uB808\uAE30\uC544\uC6C3";
-        String query = "최종판결";
+        String query = "\uC870\uAD6D\uD798\uB0B4\uC138\uC694 \uAE30\uB808\uAE30\uC544\uC6C3";
+        //String query = "최종판결";
 //      if(args.length == 3) {
 //        userCount  = (args[0] == null || args[0].isEmpty()) ? 10 : Integer.parseInt(args[0]);
 //        clickCount = (args[1] == null || args[1].isEmpty()) ? 100 : Integer.parseInt(args[1]);
 //        interval   = (args[2] == null || args[2].isEmpty()) ? 1000 : Long.parseLong(args[2]);
 //      } else {
             userCount = Runtime.getRuntime().availableProcessors();
-            clickCount = -1;
-            interval = 1000L;
+            clickCount = 10000;
+            interval = 200L;
 //      }
         HttpLoadRunner runner = new HttpLoadRunner();
         runner.execute(userCount, clickCount, interval, query);
