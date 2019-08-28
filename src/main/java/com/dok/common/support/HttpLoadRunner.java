@@ -37,7 +37,7 @@ public class HttpLoadRunner {
         @Override
         public String call() throws Exception {
             Counter count = new Counter();
-            //ExecutorService executor = Executors.newCachedThreadPool();
+            //ExecutorService executor = Executors.newSingleThreadExecutor();
             //Runnable runner = () -> {
                 for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
                     if(interval > 0) {
