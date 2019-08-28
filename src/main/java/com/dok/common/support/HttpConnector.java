@@ -23,7 +23,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 
-public class UrlConnector {
+public class HttpConnector {
 
 //    /** log4j */
 //    private final Logger             log                = LoggerFactory.getLogger(this.getClass());
@@ -41,7 +41,7 @@ public class UrlConnector {
     private boolean                  allowCookie;
 
 
-    public UrlConnector(String url, List<NameValuePair> params, boolean allowCookie) {
+    public HttpConnector(String url, List<NameValuePair> params, boolean allowCookie) {
         this.url = url;
         this.params = params;
         this.allowCookie = allowCookie;
@@ -81,6 +81,7 @@ public class UrlConnector {
             }
             // HTTP status error
             int status = httpResponse.getStatusLine().getStatusCode();
+            //System.out.println(" * http response status : " + status);
             if (status >= 200 && status < 300) {
                 //return statusLine.getStatusCode();
                 HttpEntity entity = httpResponse.getEntity();
@@ -138,8 +139,8 @@ public class UrlConnector {
         }
     }
 
-    public static UrlConnector.Builder configure() {
-        return new UrlConnector.Builder();
+    public static HttpConnector.Builder configure() {
+        return new HttpConnector.Builder();
     }
 
 
@@ -170,11 +171,11 @@ public class UrlConnector {
             return this;
         }
 
-        public UrlConnector build() {
+        public HttpConnector build() {
             if(url == null || url.isEmpty()) {
                 throw new RuntimeException("URL can not be 'NULL'");
             }
-            return new UrlConnector(url, params, allowCookie);
+            return new HttpConnector(url, params, allowCookie);
         }
 
     }
