@@ -73,7 +73,7 @@ public class HttpLoadRunner {
 
             /*
              * 동시 클릭
-             *
+
             List<Callable<Void>> callers = new ArrayList<>();
             for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
                 Callable<Void> caller = new Callable<Void>() {
@@ -196,7 +196,7 @@ public class HttpLoadRunner {
 //        interval   = (args[2] == null || args[2].isEmpty()) ? 1000 : Long.parseLong(args[2]);
 //      } else {
             userCount = Runtime.getRuntime().availableProcessors();
-            clickCount = 10000;
+            clickCount = 100;
             interval = 500L;
 //      }
         HttpLoadRunner runner = new HttpLoadRunner();
