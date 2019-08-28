@@ -48,6 +48,7 @@ public class HttpLoadRunner {
                                      .cookie(false)
                                      .build();
             */
+<<<<<<< HEAD
         }
 
         public void init() {
@@ -73,6 +74,8 @@ public class HttpLoadRunner {
             }catch(Exception ex) {
                 ex.printStackTrace();
             }
+=======
+>>>>>>> branch 'master' of https://github.com/soulcider/dok
         }
 
         @Override
