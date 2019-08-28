@@ -1,4 +1,4 @@
-package dok;
+package com.dok.common.support;
 
 import java.io.File;
 import java.io.InputStream;
