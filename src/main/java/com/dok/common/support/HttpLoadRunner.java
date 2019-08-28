@@ -37,7 +37,7 @@ public class HttpLoadRunner {
             Counter count = new Counter();
             ExecutorService executor = Executors.newCachedThreadPool();
             Runnable runner = () -> {
-                for (int j = 0; j < clickCount; j++) {
+                for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
                     if(interval > 0) {
                         try { Thread.sleep(interval); } catch(Exception ex) { }
                     }
@@ -127,15 +127,21 @@ public class HttpLoadRunner {
   }
 
   public static void main(String[] args) {
-      int userCount = Runtime.getRuntime().availableProcessors();
-      int clickCount = 1000;
-      long interval = 10000L;
-      String query = "\uC870\uAD6D\uD798\uB0B4\uC138\uC694";
-//      if(args.length == 2) {
-//        query = (args[0] == null || args[0].isEmpty()) ? "" : args[0];
-//        clickCount = (args[1] == null || args[1].isEmpty()) ? 10 : Integer.parseInt(args[1]);
-//      }
+      int userCount;
+      int clickCount;
+      long interval;
+      //String query = "\uC870\uAD6D\uD798\uB0B4\uC138\uC694";
+      String query = "\uAE30\uB808\uAE30\uC544\uC6C3";
+//      if(args.length == 3) {
+//        userCount  = (args[0] == null || args[0].isEmpty()) ? 10 : Integer.parseInt(args[0]);
+//        clickCount = (args[1] == null || args[1].isEmpty()) ? 100 : Integer.parseInt(args[1]);
+//        interval   = (args[2] == null || args[2].isEmpty()) ? 1000 : Long.parseLong(args[2]);
+//      } else {
+          userCount = Runtime.getRuntime().availableProcessors();
+          clickCount = 1000;
+          interval = 1000L;
 
+//      }
       HttpLoadRunner runner = new HttpLoadRunner();
       runner.execute(userCount, clickCount, interval, query);
   }
