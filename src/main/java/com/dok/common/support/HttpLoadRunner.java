@@ -32,6 +32,17 @@ public class HttpLoadRunner {
                                      .param("query", query)
                                      .cookie(false)
                                      .build();
+            /*
+            this.urlc = HttpConnector.configure()
+                                     .url("https://www.google.com/search")
+                                     .param("newwindow", "1")
+                                     .param("client", "firefox-b-d")
+                                     .param("channel", "crow")
+                                     .param("ie", "BDRmXYjgJeWPr7wP5Mu4kA0")
+                                     .param("q", query)
+                                     .cookie(false)
+                                     .build();
+            */
         }
 
         @Override
