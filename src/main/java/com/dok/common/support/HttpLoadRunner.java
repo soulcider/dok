@@ -1,11 +1,16 @@
 package com.dok.common.support;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import com.dok.wsc.client.ApiRequest;
+import com.dok.wsc.client.ApiResponse;
 
 
 public class HttpLoadRunner {
@@ -32,6 +37,31 @@ public class HttpLoadRunner {
                                      .param("query", query)
                                      .cookie(false)
                                      .build();
+        }
+
+        public void init() {
+            try {
+
+                Map<String, String> deviceInfo = new HashMap<>();
+                deviceInfo.put("tlcmNm", "SKTelecom");
+                deviceInfo.put("mdlNm", "SM-G960N");
+                deviceInfo.put("osNm", "Android");
+                deviceInfo.put("osVer", "26");
+                deviceInfo.put("zrpAppVer", "1");
+
+                // zeropay request
+                ApiRequest request = ApiRequest.request("MPZ1001")
+                                                       .param("userSno", this.userSno)
+                                                       .param("deviceInfo", deviceInfo)
+                                                       .build();
+
+                ApiResponse response = client.invoke(request, ApiResponse.class);
+
+                String result = response.getRescode();
+                System.out.printf("---------------> %s%n", result);
+            }catch(Exception ex) {
+                ex.printStackTrace();
+            }
         }
 
         @Override

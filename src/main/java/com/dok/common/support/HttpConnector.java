@@ -32,21 +32,24 @@ public class HttpConnector {
     private static final String      USER_AGENT         = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
     private static final String      CONTENT_TYPE       = "application/x-www-form-urlencoded";//"application/json; charset=UTF-8";
     private static final String      ACCEPT_LANGUAGE    = "en,ko-KR;q=0.5"; // "en,ko-KR;q=0.5",  "en-US,en;q=0.5"
-    public static final int          CONNECTION_TIMEOUT = 30;
-    public static final int          SOCKET_TIMEOUT     = 120;
+    private static final String      ACCEPT    = "en,ko-KR;q=0.5"; // "en,ko-KR;q=0.5",  "en-US,en;q=0.5"
+    private static final int          CONNECTION_TIMEOUT = 30;
+    private static final int          SOCKET_TIMEOUT     = 120;
 
-    private String                   url;
-    private List<NameValuePair>      params;
-    private boolean                  allowCookie;
+    private String                   CONTENT_TYPE;
+    private String      ACCEPT_LANGUAGE;
+    private String      ACCEPT;
+    private int      CONNECTION_TIMEOUT;
+    private int      SOCKET_TIMEOUT;
 
 
-    public HttpConnector(String url, List<NameValuePair> params, boolean allowCookie) {
+    private HttpConnector(String url, List<NameValuePair> params, boolean allowCookie) {
         this.url = url;
         this.params = params;
         this.allowCookie = allowCookie;
     }
 
-    public int get() {
+    public int get(HttpRequest request) {
 
         // set HttpClient
         try(CloseableHttpClient httpClient = HttpClients.createDefault()) {
