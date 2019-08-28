@@ -42,29 +42,62 @@ public class HttpLoadRunner {
                         try { Thread.sleep(interval); } catch(Exception ex) { }
                     }
                     new Thread(() -> {
-                        String res = urlc.get();
-                        String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
-                        System.out.printf(" > %s-%06d  %s %n", name, count.increment(), str);
+                        count.increment();
+                        int status = urlc.get();
+                        //String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
+                        if(status >= 200 && status < 300) {
+                          count.incrementSuccess();
+                        } else {
+                          count.incrementFailure();
+                        }
+                        System.out.printf(" > %s-%06d: %s %n", name, count.value(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
                     }).start();
                 }
             };
             executor.execute(runner);
             executor.shutdown();
-            return name + " " + count.value();
+            return String.format("[%s] Try=%d (success=%d, failure:%d)", name, count.value(), count.getSuccess(), count.getFailure());
         }
 
 
-        public class Counter {
-            private long value = 0;
+      public class Counter {
 
-            public synchronized long increment() {
-                return ++value;
-            }
+        private long callC        = 0;
 
-            public long value() {
-                return value;
-            }
+        private long rtvalS = 0;
+        private long rtvalF = 0;
+
+
+        public synchronized long increment() {
+          return ++callC;
         }
+
+        public long value() {
+          return callC;
+        }
+
+
+        public long getSuccess() {
+          return rtvalS;
+        }
+
+
+        public void incrementSuccess() {
+          ++rtvalS;
+        }
+
+
+        public long getFailure() {
+          return rtvalF;
+        }
+
+
+        public void incrementFailure() {
+          ++rtvalF;
+        }
+
+
+      }
 
   }
 
@@ -72,23 +105,24 @@ public class HttpLoadRunner {
   public void execute(int userCount, int clickCount, long interval, String query) {
       System.out.println("Init...");
       System.out.printf(" > query=%s%n", query);
-      System.out.printf(" > users=%d, click=%d, interval=%d%n", userCount, clickCount, interval);
+      System.out.printf(" > user=%d, click=%d, interval=%d%n", userCount, clickCount, interval);
 
       List<Callable<String>> tasks = new ArrayList<>();
       for(int i = 0; i < userCount; i++) {
-          Caller caller = new Caller(String.format("Task%d", i+1), clickCount, interval, query);
+          Caller caller = new Caller(String.format("TASK%d", i+1), clickCount, interval, query);
           //caller.init();
           tasks.add(caller);
       }
 
       ExecutorService executor = Executors.newFixedThreadPool(userCount);
-      System.out.println("Execute...");
       try {
+          System.out.println("Execute...");
           executor.invokeAll(tasks);
           executor.shutdown();
           //executor.awaitTermination(10, TimeUnit.MINUTES);
       } catch(Exception e) {
-          e.printStackTrace();
+          //e.printStackTrace();
+          System.err.println(e.getMessage());
       }
   }
 

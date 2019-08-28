@@ -20,7 +20,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
 
 
 public class HttpConnector {
@@ -47,7 +46,7 @@ public class HttpConnector {
         this.allowCookie = allowCookie;
     }
 
-    public String get() {
+    public int get() {
 
         // set HttpClient
         try(CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -82,19 +81,20 @@ public class HttpConnector {
             // HTTP status error
             int status = httpResponse.getStatusLine().getStatusCode();
             //System.out.println(" * http response status : " + status);
-            if (status >= 200 && status < 300) {
-                //return statusLine.getStatusCode();
-                HttpEntity entity = httpResponse.getEntity();
-                return (entity == null) ? "" : EntityUtils.toString(entity);
-            } else {
-                throw new RuntimeException("Response status: " + status);
-            }
+            //if (status >= 200 && status < 300) {
+            //    //return statusLine.getStatusCode();
+            //    HttpEntity entity = httpResponse.getEntity();
+            //    return (entity == null) ? "" : EntityUtils.toString(entity);
+            //} else {
+            //    throw new RuntimeException("Response status: " + status);
+            //}
+            return status;
         } catch(Exception ex) {
             throw new RuntimeException("URLConnector Post Error", ex);
         }
     }
 
-    public String post() {
+    public int post() {
 
         // set HttpClient
         try(CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -127,13 +127,15 @@ public class HttpConnector {
             }
             // HTTP status error
             int status = httpResponse.getStatusLine().getStatusCode();
-            if (status >= 200 && status < 300) {
-                //return statusLine.getStatusCode();
-                HttpEntity entity = httpResponse.getEntity();
-                return (entity == null) ? "" : EntityUtils.toString(entity);
-            } else {
-                throw new RuntimeException("Response status: " + status);
-            }
+            //System.out.println(" * http response status : " + status);
+            //if (status >= 200 && status < 300) {
+            //    //return statusLine.getStatusCode();
+            //    HttpEntity entity = httpResponse.getEntity();
+            //    return (entity == null) ? "" : EntityUtils.toString(entity);
+            //} else {
+            //    throw new RuntimeException("Response status: " + status);
+            //}
+            return status;
         } catch(Exception ex) {
             throw new RuntimeException("URLConnector Post Error", ex);
         }
