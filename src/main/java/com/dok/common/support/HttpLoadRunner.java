@@ -36,7 +36,7 @@ public class HttpLoadRunner {
 
         @Override
         public String call() throws Exception {
-            Counter count = new Counter();
+            Stats stats = new Stats();
 
             /*
              * 순차적인 클릭
@@ -46,16 +46,16 @@ public class HttpLoadRunner {
                     try { Thread.sleep(interval); } catch(Exception ex) { }
                 }
                 //
-                count.increment();
+                stats.incrementCall();
                 int status = urlc.get();
                 //String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
                 if(status >= 200 && status < 300) {
-                    count.incrementSuccess();
+                    stats.incrementSuccess();
                 } else if(status == 909) {
                     System.err.printf("     - URLConnector Error");
-                    count.incrementFailure();
+                    stats.incrementFailure();
                 }
-                System.out.printf(" > %s-%06d: %s %n", name, count.value(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
+                System.out.printf(" > %s-%06d: %s %n", name, stats.getCall(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
             }
 
 
@@ -72,16 +72,16 @@ public class HttpLoadRunner {
                             try { Thread.sleep(interval); } catch(Exception ex) { }
                         }
                         //
-                        count.increment();
+                        stats.incrementCall();
                         int status = urlc.get();
                         //String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
                         if(status >= 200 && status < 300) {
-                            count.incrementSuccess();
+                            stats.incrementSuccess();
                         } else if(status == 909) {
                             System.err.printf("     - URLConnector Error");
-                            count.incrementFailure();
+                            stats.incrementFailure();
                         }
-                        System.out.printf(" > %s-%06d: %s %n", name, count.value(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
+                        System.out.printf(" > %s-%06d: %s %n", name, stats.getCall(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
                         return null;
                     }
 
@@ -94,40 +94,40 @@ public class HttpLoadRunner {
             executor.shutdown();
             */
 
-            return String.format("[%s] Clicks=%d (success=%d, failure:%d)", name, count.value(), count.getSuccess(), count.getFailure());
+            return String.format("[%s] Clicks=%d (success=%d, failure:%d)", name, stats.getCall(), stats.getSuccess(), stats.getFailure());
         }
 
 
-        public class Counter {
+        public class Stats {
 
-            private long callC  = 0;
+            private long reqC = 0L;
+            private long resS = 0L;
+            private long resF = 0L;
+            private String status = null;
 
-            private long rtvalS = 0;
-            private long rtvalF = 0;
 
-
-            public synchronized long increment() {
-                return ++callC;
+            public synchronized long incrementCall() {
+                return ++reqC;
             }
 
-            public long value() {
-                return callC;
+            public long getCall() {
+                return reqC;
             }
 
             public long getSuccess() {
-                return rtvalS;
+                return resS;
             }
 
             public void incrementSuccess() {
-                ++rtvalS;
+                ++resS;
             }
 
             public long getFailure() {
-                return rtvalF;
+                return resF;
             }
 
             public void incrementFailure() {
-                ++rtvalF;
+                ++resF;
             }
 
         }
@@ -177,8 +177,8 @@ public class HttpLoadRunner {
         int userCount;
         int clickCount;
         long interval;
-        String query = "\uAE30\uB808\uAE30\uC544\uC6C3";
-        //String query = "최종판결";
+        //String query = "\uAE30\uB808\uAE30\uC544\uC6C3";
+        String query = "가짜뉴스아웃";
 //      if(args.length == 3) {
 //        userCount  = (args[0] == null || args[0].isEmpty()) ? 10 : Integer.parseInt(args[0]);
 //        clickCount = (args[1] == null || args[1].isEmpty()) ? 100 : Integer.parseInt(args[1]);
@@ -186,7 +186,7 @@ public class HttpLoadRunner {
 //      } else {
             userCount = Runtime.getRuntime().availableProcessors();
             clickCount = 10000;
-            interval = 2000L;
+            interval = 500L;
 //      }
         HttpLoadRunner runner = new HttpLoadRunner();
         runner.execute(userCount, clickCount, interval, query);

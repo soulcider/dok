@@ -29,9 +29,9 @@ public class HttpConnector {
 
     private static final CookieStore BASIC_COOKIE_STORE        = new BasicCookieStore();;
 
-    private static final String      USER_AGENT         = "WscClient/1.0";
+    private static final String      USER_AGENT         = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
     private static final String      CONTENT_TYPE       = "application/x-www-form-urlencoded";//"application/json; charset=UTF-8";
-    private static final String      ACCEPT_LANGUAGE    = "ko-KR,en;q=0.5"; // "ko-KR,en;q=0.5",  "en-US,en;q=0.5"
+    private static final String      ACCEPT_LANGUAGE    = "en,ko-KR;q=0.5"; // "en,ko-KR;q=0.5",  "en-US,en;q=0.5"
     public static final int          CONNECTION_TIMEOUT = 30;
     public static final int          SOCKET_TIMEOUT     = 120;
 
@@ -82,13 +82,15 @@ public class HttpConnector {
             // HTTP status error
             int status = httpResponse.getStatusLine().getStatusCode();
             //System.out.println(" * http response status : " + status);
-            //if (status >= 200 && status < 300) {
-            //    //return statusLine.getStatusCode();
-            //    HttpEntity entity = httpResponse.getEntity();
-            //    return (entity == null) ? "" : EntityUtils.toString(entity);
-            //} else {
-            //    throw new RuntimeException("Response status: " + status);
-            //}
+            /*
+            if (status >= 200 && status < 300) {
+                //return statusLine.getStatusCode();
+                HttpEntity entity = httpResponse.getEntity();
+                return (entity == null) ? "" : EntityUtils.toString(entity);
+            } else {
+                throw new RuntimeException("Response status: " + status);
+            }
+            */
             return status;
         } catch(Exception ex) {
             //throw new RuntimeException("URLConnector Post Error", ex);
@@ -131,13 +133,15 @@ public class HttpConnector {
             // HTTP status error
             int status = httpResponse.getStatusLine().getStatusCode();
             //System.out.println(" * http response status : " + status);
-            //if (status >= 200 && status < 300) {
-            //    //return statusLine.getStatusCode();
-            //    HttpEntity entity = httpResponse.getEntity();
-            //    return (entity == null) ? "" : EntityUtils.toString(entity);
-            //} else {
-            //    throw new RuntimeException("Response status: " + status);
-            //}
+            /*
+            if (status >= 200 && status < 300) {
+                //return statusLine.getStatusCode();
+                HttpEntity entity = httpResponse.getEntity();
+                return (entity == null) ? "" : EntityUtils.toString(entity);
+            } else {
+                throw new RuntimeException("Response status: " + status);
+            }
+            */
             return status;
         } catch(Exception ex) {
             //throw new RuntimeException("URLConnector Post Error", ex);
