@@ -1,11 +1,8 @@
 package com.dok.common.support;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -17,7 +14,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
@@ -27,26 +23,28 @@ public class HttpConnector {
 //    /** log4j */
 //    private final Logger             log                = LoggerFactory.getLogger(this.getClass());
 
-    private static final CookieStore BASIC_COOKIE_STORE        = new BasicCookieStore();;
+  private static final CookieStore BASIC_COOKIE_STORE = new BasicCookieStore();;
 
-    private static final String      USER_AGENT         = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
-    private static final String      CONTENT_TYPE       = "application/x-www-form-urlencoded";//"application/json; charset=UTF-8";
-    private static final String      ACCEPT_LANGUAGE    = "en,ko-KR;q=0.5"; // "en,ko-KR;q=0.5",  "en-US,en;q=0.5"
-    private static final String      ACCEPT    = "en,ko-KR;q=0.5"; // "en,ko-KR;q=0.5",  "en-US,en;q=0.5"
-    private static final int          CONNECTION_TIMEOUT = 30;
-    private static final int          SOCKET_TIMEOUT     = 120;
+  private static final String      USER_AGENT         = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0";
+  private static final String      CONTENT_TYPE       = "application/x-www-form-urlencoded";//"application/json; charset=UTF-8";
+  private static final String      ACCEPT_LANGUAGE    = "en,ko-KR;q=0.5"; // "en,ko-KR;q=0.5",  "en-US,en;q=0.5"
+  private static final String      ACCEPT             = "text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8";
+  private static final int         CONNECTION_TIMEOUT = 30;
+  private static final int         SOCKET_TIMEOUT     = 120;
 
-    private String                   CONTENT_TYPE;
-    private String      ACCEPT_LANGUAGE;
-    private String      ACCEPT;
-    private int      CONNECTION_TIMEOUT;
-    private int      SOCKET_TIMEOUT;
+  private String                   contentType;
+  private String                   acceptLanguage;
+  private String                   accept;
+  private int                      connectionTimeout;
+  private int                      socketTimeout;
 
 
-    private HttpConnector(String url, List<NameValuePair> params, boolean allowCookie) {
-        this.url = url;
-        this.params = params;
-        this.allowCookie = allowCookie;
+    private HttpConnector(String contentType, String acceptLanguage, String accept, int connectionTimeout, int socketTimeout) {
+      this.contentType = contentType;
+      this.acceptLanguage = acceptLanguage;
+      this.accept = accept;
+      this.connectionTimeout = connectionTimeout;
+      this.socketTimeout = socketTimeout;
     }
 
     public int get(HttpRequest request) {
@@ -58,30 +56,25 @@ public class HttpConnector {
             httpContext.setAttribute(HttpClientContext.COOKIE_STORE, BASIC_COOKIE_STORE);
 
             RequestConfig config = RequestConfig.custom()
-                                                .setConnectTimeout(CONNECTION_TIMEOUT * 1000)
-                                                .setConnectionRequestTimeout(SOCKET_TIMEOUT * 1000)
-                                                .setSocketTimeout(SOCKET_TIMEOUT * 1000)
+                                                .setConnectTimeout(connectionTimeout * 1000)
+                                                .setConnectionRequestTimeout(socketTimeout * 1000)
+                                                .setSocketTimeout(socketTimeout * 1000)
                                                 .build();
 
-            HttpGet httpGet = new HttpGet(url);
+            HttpGet httpGet = new HttpGet(request.getUrl());
             httpGet.setHeader("User-Agent", USER_AGENT);
-            httpGet.setHeader("Accept", "text/html;q=0.9,*/*;q=0.8");
-            httpGet.setHeader("Accept-Language", "en-US,en;q=0.5");
+            httpGet.setHeader("Accept", accept);
+            httpGet.setHeader("Accept-Language", acceptLanguage);
             httpGet.setConfig(config);
 
 
-            if(params != null && !params.isEmpty()) {
-                URI uri = new URIBuilder(httpGet.getURI()).addParameters(params).build();
+            if(request.getParams() != null && !request.getParams().isEmpty()) {
+                URI uri = new URIBuilder(httpGet.getURI()).addParameters(request.getParams()).build();
                 httpGet.setURI(uri);
                 //System.out.println(" * URI : " + uri);
             }
 
-            CloseableHttpResponse httpResponse = null;
-            if(allowCookie) {
-                httpResponse = httpClient.execute(httpGet, httpContext);
-            } else {
-                httpResponse = httpClient.execute(httpGet);
-            }
+            CloseableHttpResponse httpResponse = httpClient.execute(httpGet, httpContext);
             // HTTP status error
             int status = httpResponse.getStatusLine().getStatusCode();
             //System.out.println(" * http response status : " + status);
@@ -96,12 +89,13 @@ public class HttpConnector {
             */
             return status;
         } catch(Exception ex) {
+            System.err.println(ex.getMessage());
             //throw new RuntimeException("URLConnector Post Error", ex);
             return 909;
         }
     }
 
-    public int post() {
+    public int post(HttpRequest request) {
 
         // set HttpClient
         try(CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -110,29 +104,25 @@ public class HttpConnector {
             httpContext.setAttribute(HttpClientContext.COOKIE_STORE, BASIC_COOKIE_STORE);
 
             RequestConfig config = RequestConfig.custom()
-                                                .setConnectTimeout(CONNECTION_TIMEOUT * 1000)
-                                                .setConnectionRequestTimeout(SOCKET_TIMEOUT * 1000)
-                                                .setSocketTimeout(SOCKET_TIMEOUT * 1000)
+                                                .setConnectTimeout(connectionTimeout * 1000)
+                                                .setConnectionRequestTimeout(socketTimeout * 1000)
+                                                .setSocketTimeout(socketTimeout * 1000)
                                                 .build();
 
-            HttpPost httpPost = new HttpPost(url);
+            HttpPost httpPost = new HttpPost(request.getUrl());
             httpPost.setHeader("User-Agent", USER_AGENT);
-            httpPost.setHeader("Content-Type", CONTENT_TYPE);
-            httpPost.setHeader("Accept-Language", ACCEPT_LANGUAGE);
+            httpPost.setHeader("Content-Type", contentType);
+            httpPost.setHeader("Accept", accept);
+            httpPost.setHeader("Accept-Language", acceptLanguage);
             httpPost.setConfig(config);
 
-            if(params != null && !params.isEmpty()) {
-                HttpEntity httpEntity = new UrlEncodedFormEntity(params);
+            if(request.getParams() != null && !request.getParams().isEmpty()) {
+                HttpEntity httpEntity = new UrlEncodedFormEntity(request.getParams());
                 httpPost.setEntity(httpEntity);
                 //System.out.println(" * QUERY : " + EntityUtils.toString(httpEntity));
             }
 
-            CloseableHttpResponse httpResponse = null;
-            if(allowCookie) {
-                httpResponse = httpClient.execute(httpPost, httpContext);
-            } else {
-                httpResponse = httpClient.execute(httpPost);
-            }
+            CloseableHttpResponse httpResponse = httpClient.execute(httpPost, httpContext);
             // HTTP status error
             int status = httpResponse.getStatusLine().getStatusCode();
             //System.out.println(" * http response status : " + status);
@@ -147,6 +137,7 @@ public class HttpConnector {
             */
             return status;
         } catch(Exception ex) {
+            System.err.println(ex.getMessage());
             //throw new RuntimeException("URLConnector Post Error", ex);
             return 909;
         }
@@ -159,36 +150,43 @@ public class HttpConnector {
 
     public static class Builder {
 
-        private String              url;
-        private List<NameValuePair> params      = new ArrayList<NameValuePair>();
-        private boolean             allowCookie = false;
+        private String contentType       = CONTENT_TYPE;
+        private String acceptLanguage    = ACCEPT_LANGUAGE;
+        private String accept            = ACCEPT;
+        private int    connectionTimeout = CONNECTION_TIMEOUT;
+        private int    socketTimeout     = SOCKET_TIMEOUT;
 
 
-        public Builder url(String url) {
-            this.url = url;
+        public Builder contentType(String contentType) {
+            this.contentType = contentType;
             return this;
         }
 
-        public Builder cookie(boolean allowCookie) {
-            this.allowCookie = allowCookie;
+        public Builder acceptLanguage(String acceptLanguage) {
+            this.acceptLanguage = acceptLanguage;
             return this;
         }
 
-        public Builder param(String name, String value) {
-            this.params.add(new BasicNameValuePair(name, value));
+        public Builder accept(String accept) {
+            this.accept = accept;
             return this;
         }
 
-        public Builder params(List<NameValuePair> paramList) {
-            this.params.addAll(paramList);
+        public Builder connectionTimeout(int connectionTimeout) {
+            this.connectionTimeout = connectionTimeout;
+            return this;
+        }
+
+        public Builder socketTimeout(int socketTimeout) {
+            this.socketTimeout = socketTimeout;
             return this;
         }
 
         public HttpConnector build() {
-            if(url == null || url.isEmpty()) {
-                throw new RuntimeException("URL can not be 'NULL'");
-            }
-            return new HttpConnector(url, params, allowCookie);
+            //if(url == null || url.isEmpty()) {
+            //    throw new RuntimeException("URL can not be 'NULL'");
+            //}
+            return new HttpConnector(contentType, acceptLanguage, accept, connectionTimeout, socketTimeout);
         }
 
     }

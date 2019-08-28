@@ -6,11 +6,12 @@ import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+
 public class HttpRequest {
 
-  private String                   url;
-  private List<NameValuePair>      params;
-  //private boolean                  allowCookie;
+    private String              url;
+    private List<NameValuePair> params;
+    //private boolean                  allowCookie;
 
 
     public HttpRequest(String url, List<NameValuePair> params) {
@@ -19,18 +20,13 @@ public class HttpRequest {
         //this.allowCookie = allowCookie;
     }
 
-
-
     public String getUrl() {
         return url;
     }
 
-
-
     public List<NameValuePair> getParams() {
         return params;
     }
-
 
     public static HttpRequest.Builder configure() {
         return new HttpRequest.Builder();
@@ -40,7 +36,7 @@ public class HttpRequest {
     public static class Builder {
 
         private String              url;
-        private List<NameValuePair> params      = new ArrayList<NameValuePair>();
+        private List<NameValuePair> params = new ArrayList<NameValuePair>();
         //private boolean             allowCookie = false;
 
 
