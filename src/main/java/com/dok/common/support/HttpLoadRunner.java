@@ -41,10 +41,7 @@ public class HttpLoadRunner {
             //Runnable runner = () -> {
                 for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
                     if(interval > 0) {
-                        try {
-                            Thread.sleep(interval);
-                        } catch(Exception ex) {
-                        }
+                        try { Thread.sleep(interval); } catch(Exception ex) { }
                     }
                     //
                     count.increment();
@@ -153,7 +150,7 @@ public class HttpLoadRunner {
 //      } else {
             userCount = Runtime.getRuntime().availableProcessors();
             clickCount = 100000;
-            interval = 1000L;
+            interval = 2000L;
 //      }
         HttpLoadRunner runner = new HttpLoadRunner();
         runner.execute(userCount, clickCount, interval, query);

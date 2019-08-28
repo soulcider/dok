@@ -70,6 +70,7 @@ public class HttpConnector {
             if(params != null && !params.isEmpty()) {
                 URI uri = new URIBuilder(httpGet.getURI()).addParameters(params).build();
                 httpGet.setURI(uri);
+                //System.out.println(" * URI : " + uri);
             }
 
             CloseableHttpResponse httpResponse = null;
@@ -118,6 +119,7 @@ public class HttpConnector {
             if(params != null && !params.isEmpty()) {
                 HttpEntity httpEntity = new UrlEncodedFormEntity(params);
                 httpPost.setEntity(httpEntity);
+                //System.out.println(" * QUERY : " + EntityUtils.toString(httpEntity));
             }
 
             CloseableHttpResponse httpResponse = null;
