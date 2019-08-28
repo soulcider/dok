@@ -37,27 +37,63 @@ public class HttpLoadRunner {
         @Override
         public String call() throws Exception {
             Counter count = new Counter();
-            //ExecutorService executor = Executors.newSingleThreadExecutor();
-            //Runnable runner = () -> {
-                for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
-                    if(interval > 0) {
-                        try { Thread.sleep(interval); } catch(Exception ex) { }
-                    }
-                    //
-                    count.increment();
-                    int status = urlc.get();
-                    //String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
-                    if(status >= 200 && status < 300) {
-                        count.incrementSuccess();
-                    } else if(status == 909) {
-                        System.err.printf("     - URLConnector Error");
-                        count.incrementFailure();
-                    }
-                    System.out.printf(" > %s-%06d: %s %n", name, count.value(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
+
+            /*
+             * 순차적인 클릭
+            */
+            for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
+                if(interval > 0) {
+                    try { Thread.sleep(interval); } catch(Exception ex) { }
                 }
-            //};
-            //executor.execute(runner);
-            //executor.shutdown();
+                //
+                count.increment();
+                int status = urlc.get();
+                //String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
+                if(status >= 200 && status < 300) {
+                    count.incrementSuccess();
+                } else if(status == 909) {
+                    System.err.printf("     - URLConnector Error");
+                    count.incrementFailure();
+                }
+                System.out.printf(" > %s-%06d: %s %n", name, count.value(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
+            }
+
+
+
+            /*
+             * 동시 클릭
+             *
+            List<Callable<Void>> callers = new ArrayList<>();
+            for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
+                Callable<Void> caller = new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        if(interval > 0) {
+                            try { Thread.sleep(interval); } catch(Exception ex) { }
+                        }
+                        //
+                        count.increment();
+                        int status = urlc.get();
+                        //String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
+                        if(status >= 200 && status < 300) {
+                            count.incrementSuccess();
+                        } else if(status == 909) {
+                            System.err.printf("     - URLConnector Error");
+                            count.incrementFailure();
+                        }
+                        System.out.printf(" > %s-%06d: %s %n", name, count.value(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
+                        return null;
+                    }
+
+                };
+                callers.add(caller);
+            }
+            //
+            ExecutorService executor = Executors.newFixedThreadPool(callers.size());
+            executor.invokeAll(callers);
+            executor.shutdown();
+            */
+
             return String.format("[%s] Clicks=%d (success=%d, failure:%d)", name, count.value(), count.getSuccess(), count.getFailure());
         }
 
@@ -112,7 +148,7 @@ public class HttpLoadRunner {
         }
 
         List<Future<String>> futures = null;
-        ExecutorService executor = Executors.newFixedThreadPool(userCount);
+        ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
         try {
             System.out.println("Execute...");
             futures = executor.invokeAll(tasks);
@@ -141,7 +177,7 @@ public class HttpLoadRunner {
         int userCount;
         int clickCount;
         long interval;
-        String query = "\uC870\uAD6D\uD798\uB0B4\uC138\uC694 \uAE30\uB808\uAE30\uC544\uC6C3";
+        String query = "\uAE30\uB808\uAE30\uC544\uC6C3";
         //String query = "최종판결";
 //      if(args.length == 3) {
 //        userCount  = (args[0] == null || args[0].isEmpty()) ? 10 : Integer.parseInt(args[0]);
@@ -149,7 +185,7 @@ public class HttpLoadRunner {
 //        interval   = (args[2] == null || args[2].isEmpty()) ? 1000 : Long.parseLong(args[2]);
 //      } else {
             userCount = Runtime.getRuntime().availableProcessors();
-            clickCount = 100000;
+            clickCount = 10000;
             interval = 2000L;
 //      }
         HttpLoadRunner runner = new HttpLoadRunner();
