@@ -49,7 +49,7 @@ public class TestUrlConnector {
                     new Thread(() -> {
                         String res = urlc.get();
                         String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
-                        System.out.printf("> %s-%04d  %s %n", name, count.increment(), str);
+                        System.out.printf("> %s-%06d  %s %n", name, count.increment(), str);
                     }).start();
                 }
             };
@@ -82,7 +82,7 @@ public class TestUrlConnector {
 
       List<Callable<String>> tasks = new ArrayList<>();
       for(int i = 0; i < taskCount; i++) {
-          Caller caller = new Caller(String.format("Task%04d", i+1), actionCount, sleep, query);
+          Caller caller = new Caller(String.format("Task%d", i+1), actionCount, sleep, query);
           //caller.init();
           tasks.add(caller);
       }
