@@ -108,6 +108,7 @@ public class TestUrlConnector {
 //        actionCount = (args[1] == null || args[1].isEmpty()) ? 10 : Integer.parseInt(args[1]);
 //      }
 
+      System.out.println(" * query=" + query);
       TestUrlConnector test = new TestUrlConnector();
       test.execute(taskCount, actionCount, sleep, query);
   }
