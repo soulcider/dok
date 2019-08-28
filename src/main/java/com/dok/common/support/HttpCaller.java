@@ -26,10 +26,7 @@ public abstract class HttpCaller implements Callable<String> {
 
     }
 
-    public abstract void init() ;
-
-    //@Override
-    //public String call() throws Exception ;
+    public abstract void init();
 
 
     public class Stats {
