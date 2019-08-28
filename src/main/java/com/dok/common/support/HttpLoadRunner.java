@@ -152,8 +152,8 @@ public class HttpLoadRunner {
 //        interval   = (args[2] == null || args[2].isEmpty()) ? 1000 : Long.parseLong(args[2]);
 //      } else {
             userCount = Runtime.getRuntime().availableProcessors();
-            clickCount = 10000;
-            interval = 200L;
+            clickCount = 100000;
+            interval = 1000L;
 //      }
         HttpLoadRunner runner = new HttpLoadRunner();
         runner.execute(userCount, clickCount, interval, query);
