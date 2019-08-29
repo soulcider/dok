@@ -33,7 +33,7 @@ public class CustomCaller  {
             .param("sm", "top_hty")
             .param("fbm", "0")
             .param("ie", "utf8")
-            .param("query", "가짜뉴스아웃")
+            .param("query", "\uD55C\uAD6D\uC5B8\uB860\uC0AC\uB9DD")
             .build();
 
         int status = search.execute();
@@ -45,6 +45,23 @@ public class CustomCaller  {
     }
 
     public void multiRequest() {
+
+        // Login ?url=&svctype=1
+        RequestForm keys = RequestForm.configure()
+                .url("https://nid.naver.com/signin/v3/finalize")
+                .method(Method.GET)
+                .ping(false)
+                .connector(urlc)
+                .param("url", "https%3A%2F%2Fwww.naver.com")
+                .param("svctype", "1")
+                .build();
+
+        int status = keys.execute();
+        if(status >= 200 && status < 300) {
+            LOG.debug(" * Init Success\n{}", keys.getResponseBody());
+        } else {
+            LOG.debug(" * Init Failure");
+        }
 
         RequestForm login = RequestForm.configure()
                 .url("https://nid.naver.com/nidlogin.login")
@@ -64,6 +81,14 @@ public class CustomCaller  {
                 .param("pw", "")
                 .build();
 
+        int status = login.execute();
+        if(status >= 200 && status < 300) {
+            LOG.debug(" * Init Success");
+        } else {
+            LOG.debug(" * Init Failure");
+        }
+
+
         RequestForm search = RequestForm.configure()
             .url("https://search.naver.com/search.naver")
             .method(Method.GET)
@@ -79,7 +104,6 @@ public class CustomCaller  {
       int clickCount= 10;
       long interval= 1000;
       Executor executor = new Executor();
-      executor.login(login);
       List<Future<Stats>> futures = executor.execute(search, userCount, clickCount, interval);
       if(futures != null && futures.size() > 0) {
         LOG.debug("Result...");
