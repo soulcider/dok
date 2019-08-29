@@ -7,9 +7,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.dok.common.http.Request;
 
 public class Executor {
+
+  /** log4j */
+  private final Logger LOG  = LoggerFactory.getLogger(this.getClass());
 
   private Request setupRequest = null;
 
@@ -19,9 +25,9 @@ public class Executor {
   }
 
   public List<Future<Stats>> execute(Request request, int userCount, int clickCount, long interval) {
-    System.out.println("Init...");
+    LOG.debug("Init...");
     //System.out.printf(" > query=%s%n", query);
-    System.out.printf(" > users=%d, clicks=%d, interval=%d%n", userCount, clickCount, interval);
+    LOG.debug(" > users={}, clicks={}, interval={}", userCount, clickCount, interval);
     List<Callable<Stats>> tasks = new ArrayList<>();
     for (int i = 0; i < userCount; i++) {
 
@@ -49,10 +55,11 @@ public class Executor {
                 if(status >= 200 && status < 300) {
                     stats.incrementSuccess();
                 } else {
-                    System.err.println("        -Error:: URLConnector");
+                    LOG.error("        -Error:: URLConnector");
                     stats.incrementFailure();
                 }
-                System.out.printf(" > %s-%06d: %s%n", name, stats.getCall(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
+                String msg = String.format(" > %s-%06d: %s", name, stats.getCall(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
+                LOG.debug(msg);
             }
 
 
@@ -101,9 +108,9 @@ public class Executor {
           int status = setupRequest.execute();
           //System.out.printf("---------------> %s%n", status);
           if(status >= 200 && status < 300) {
-              System.out.println(" * Init Success");
+              LOG.debug(" * Init Success");
           } else {
-              System.err.println(" * Init Failure");
+              LOG.debug(" * Init Failure");
           }
         }
 
@@ -116,13 +123,13 @@ public class Executor {
     if(size > 0) {
       ExecutorService executor = Executors.newFixedThreadPool(size);
       try {
-          System.out.println("Execute...");
+          LOG.debug("Execute...");
           futures = executor.invokeAll(tasks);
           executor.shutdown();
           //executor.awaitTermination(10, TimeUnit.MINUTES);
       } catch(Exception e) {
           //e.printStackTrace();
-          System.err.println(e.getMessage());
+          LOG.error(e.getMessage());
       }
 
       /*

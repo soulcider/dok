@@ -6,8 +6,6 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dok.common.callable.Executor;
-import com.dok.common.callable.Stats;
 import com.dok.common.http.Connector;
 import com.dok.common.http.Request.Method;
 import com.dok.common.http.RequestForm;
@@ -15,7 +13,7 @@ import com.dok.common.http.RequestForm;
 public class CustomCaller  {
 
     /** log4j */
-    private final Logger LOG          = LoggerFactory.getLogger(this.getClass());
+    private final Logger LOG  = LoggerFactory.getLogger(this.getClass());
 
     private Connector urlc = Connector.custom()
                              .contentType("application/x-www-form-urlencoded")
@@ -39,7 +37,11 @@ public class CustomCaller  {
             .build();
 
         int status = search.execute();
-        System.out.println("http status: " + status);
+        if(status >= 200 && status < 300) {
+          LOG.debug(" * Execute failure");
+        } else {
+          LOG.debug(" * Execute success");
+        }
     }
 
     public void multiRequest() {
@@ -80,14 +82,14 @@ public class CustomCaller  {
       executor.setup(login);
       List<Future<Stats>> futures = executor.execute(search, userCount, clickCount, interval);
       if(futures != null && futures.size() > 0) {
-          System.out.println("Result...");
+        LOG.debug("Result...");
           for(Future<Stats> future : futures) {
               try {
                   Stats stats = future.get();
                   String msg = String.format("[%s] Clicks=%d (success=%d, failure:%d)", stats.getName(), stats.getCall(), stats.getSuccess(), stats.getFailure());
-                  System.out.println(msg);
+                  LOG.debug(msg);
               } catch (Exception e) {
-                  System.err.println(e.getMessage());
+                LOG.error(e.getMessage());
               }
           }
       }
