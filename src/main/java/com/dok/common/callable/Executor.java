@@ -20,7 +20,54 @@ public class Executor {
     private boolean      simul        = false;
 
 
-    public List<Future<Stats>> execute(Request request, int userCount, int clickCount, long interval) {
+    public Future<Stats> single(Request request, long delay) {
+        LOG.debug("Init...");
+        LOG.debug(" > users={}, delay={}", 1, delay);
+        // task name
+        String name = "TASK1";
+        Callable<Stats> caller = new Callable<Stats>() {
+
+            @Override
+            public Stats call() throws Exception {
+                Stats stats = new Stats(name);
+                if(delay > 0) {
+                    try {
+                        Thread.sleep(delay);
+                    } catch(Exception ex) {
+                    }
+                }
+                //
+                stats.incrementCall();
+                int status = request.execute();
+                if(status >= 200 && status < 300) {
+                    stats.incrementSuccess();
+                } else {
+                    LOG.error("        -Error:: URLConnector");
+                    stats.incrementFailure();
+                }
+                String msg = String.format(" > %s-%06d: %s", name, stats.getCall(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
+                LOG.debug(msg);
+
+                return stats;
+            }
+
+        };
+
+        Future<Stats> future = null;
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            LOG.debug("Execute...");
+            future = executor.submit(caller);
+            executor.shutdown();
+            //executor.awaitTermination(10, TimeUnit.MINUTES);
+        } catch(Exception e) {
+            //e.printStackTrace();
+            LOG.error(e.getMessage());
+        }
+        return future;
+    }
+
+    public List<Future<Stats>> multiple(Request request, int userCount, int clickCount, long interval) {
         LOG.debug("Init...");
         LOG.debug(" > users={}, clicks={}, interval={}", userCount, clickCount, interval);
         List<Callable<Stats>> tasks = new ArrayList<>();

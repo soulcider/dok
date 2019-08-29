@@ -61,7 +61,7 @@ public class CustomCaller  {
       int clickCount= 1000;
       long interval= 1000;
       Executor executor = new Executor();
-      List<Future<Stats>> futures = executor.execute(search, userCount, clickCount, interval);
+      List<Future<Stats>> futures = executor.multiple(search, userCount, clickCount, interval);
       if(futures != null && futures.size() > 0) {
         LOG.debug("Result...");
           for(Future<Stats> future : futures) {
