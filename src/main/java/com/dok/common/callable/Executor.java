@@ -18,15 +18,7 @@ public class Executor {
     private final Logger LOG          = LoggerFactory.getLogger(this.getClass());
 
     private boolean      simul        = false;
-    private Request      setupRequest = null;
 
-    /**
-     * 필요시 Login
-     * @param request
-     */
-    public void login(Request request) {
-        this.setupRequest = request;
-    }
 
     public List<Future<Stats>> execute(Request request, int userCount, int clickCount, long interval) {
         LOG.debug("Init...");
@@ -77,16 +69,6 @@ public class Executor {
                     }
 
                 };
-
-                if(setupRequest != null) {
-                  int status = setupRequest.execute();
-                  if(status >= 200 && status < 300) {
-                      LOG.debug(" * Init Success");
-                  } else {
-                      LOG.debug(" * Init Failure");
-                  }
-                }
-
                 tasks.add(caller);
             } else {
                 // 순차적인 실행
@@ -119,16 +101,6 @@ public class Executor {
                     }
 
                 };
-
-                if(setupRequest != null) {
-                    int status = setupRequest.execute();
-                    if(status >= 200 && status < 300) {
-                        LOG.debug(" * Init Success");
-                    } else {
-                        LOG.debug(" * Init Failure");
-                    }
-                }
-
                 tasks.add(caller);
             }
 
