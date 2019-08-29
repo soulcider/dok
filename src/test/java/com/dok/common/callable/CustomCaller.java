@@ -33,7 +33,7 @@ public class CustomCaller  {
             .param("sm", "top_hty")
             .param("fbm", "0")
             .param("ie", "utf8")
-            .param("query", "가짜뉴스아웃")
+            .param("query", "\uD55C\uAD6D\uC5B8\uB860\uC0AC\uB9DD")
             .build();
 
         int status = search.execute();
