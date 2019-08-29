@@ -8,5 +8,6 @@ public interface Request {
 
 
     public int execute();
+    public String getResponseBody();
 
 }

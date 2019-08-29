@@ -135,6 +135,7 @@ public class RequestXml implements Request {
 //      return params;
 //  }
 
+  @Override
   public String getResponseBody() {
     return responseBody;
   }
