@@ -11,7 +11,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 public class JsonUtil {
 
   private JsonUtil(){
-
+    // no instances
   }
 
 
