@@ -8,9 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-public class GsonUtil {
+public class JsonUtil {
 
-  private GsonUtil(){
+  private JsonUtil(){
 
   }
 
@@ -70,7 +70,7 @@ public class GsonUtil {
 
 	public static void main(String[] args) throws Exception {
 		String jsonData = "{\"IF_ID\":\"INF-001\", \"AccountInfoDto\":[ {\"IN_ACT_NO\":\"213042321234\", \"IN_ACT_NO1\":\"ABC\"}, {\"IN_ACT_NO\":\"213042321234\", \"IN_ACT_NO1\":\"123\"} ],\"IF_ID1\":\"INF1-001\"}";
-		String xml = GsonUtil.json2xml(jsonData);
+		String xml = JsonUtil.json2xml(jsonData);
 		System.out.println("result :: " + xml);
 
 		String xmlData = "<root>"
@@ -85,7 +85,7 @@ public class GsonUtil {
 		               + "  </AccountInfoDto>"
 		               + "  <IF_ID1>INF1-001</IF_ID1>"
 		               + "</root>";
-		String json = GsonUtil.xml2json(xmlData);
+		String json = JsonUtil.xml2json(xmlData);
     System.out.println("result :: " + json);
 	}
 
