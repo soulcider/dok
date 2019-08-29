@@ -28,7 +28,7 @@ public class CustomCaller  {
         RequestForm search = RequestForm.configure()
             .url("https://search.naver.com/search.naver")
             .method(Method.GET)
-            .ping(true)
+            .ping(false)
             .connector(urlc)
             .param("sm", "top_hty")
             .param("fbm", "0")
@@ -38,9 +38,9 @@ public class CustomCaller  {
 
         int status = search.execute();
         if(status >= 200 && status < 300) {
-          LOG.debug(" * Execute failure");
+          LOG.debug(" * Execute success\n{}", search.getResponseBody());
         } else {
-          LOG.debug(" * Execute success");
+          LOG.debug(" * Execute failure");
         }
     }
 
@@ -54,11 +54,11 @@ public class CustomCaller  {
             .param("sm", "top_hty")
             .param("fbm", "0")
             .param("ie", "utf8")
-            .param("query", "\uAC00\uC9DC\uB274\uC2A4\uC544\uC6C3")
+            .param("query", "\uD55C\uAD6D\uC5B8\uB860\uC0AC\uB9DD")
             .build();
 
       int userCount = Runtime.getRuntime().availableProcessors();
-      int clickCount= 10;
+      int clickCount= 1000;
       long interval= 1000;
       Executor executor = new Executor();
       List<Future<Stats>> futures = executor.execute(search, userCount, clickCount, interval);
