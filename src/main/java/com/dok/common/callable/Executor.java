@@ -14,109 +14,125 @@ import com.dok.common.http.Request;
 
 public class Executor {
 
-  /** log4j */
-  private final Logger LOG  = LoggerFactory.getLogger(this.getClass());
+    /** log4j */
+    private final Logger LOG          = LoggerFactory.getLogger(this.getClass());
 
-  private Request setupRequest = null;
+    private boolean      simul        = false;
+    private Request      setupRequest = null;
 
+    /**
+     * 필요시 Login
+     * @param request
+     */
+    public void login(Request request) {
+        this.setupRequest = request;
+    }
 
-  public void setup(Request request) {
-    this.setupRequest = request;
-  }
+    public List<Future<Stats>> execute(Request request, int userCount, int clickCount, long interval) {
+        LOG.debug("Init...");
+        LOG.debug(" > users={}, clicks={}, interval={}", userCount, clickCount, interval);
+        List<Callable<Stats>> tasks = new ArrayList<>();
+        for (int i = 0; i < userCount; i++) {
+            // task name
+            String name = String.format("TASK%d", i + 1);
 
-  public List<Future<Stats>> execute(Request request, int userCount, int clickCount, long interval) {
-    LOG.debug("Init...");
-    //System.out.printf(" > query=%s%n", query);
-    LOG.debug(" > users={}, clicks={}, interval={}", userCount, clickCount, interval);
-    List<Callable<Stats>> tasks = new ArrayList<>();
-    for (int i = 0; i < userCount; i++) {
+            if(simul) {
+                // 동시에 실행
+                Callable<Stats> caller = new Callable<Stats>() {
 
-      String name = String.format("TASK%d", i + 1);
-
-        Callable<Stats> caller = new Callable<Stats>() {
-
-          @Override
-          public Stats call() throws Exception {
-            Stats stats = new Stats(name);
-
-            /*
-             * 순차적인 클릭
-            */
-            for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
-                if(interval > 0) {
-                    try { Thread.sleep(interval); } catch(Exception ex) { }
-                }
-                //
-                stats.incrementCall();
-
-
-                int status = request.execute();
-                //String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
-                if(status >= 200 && status < 300) {
-                    stats.incrementSuccess();
-                } else {
-                    LOG.error("        -Error:: URLConnector");
-                    stats.incrementFailure();
-                }
-                String msg = String.format(" > %s-%06d: %s", name, stats.getCall(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
-                LOG.debug(msg);
-            }
-
-
-
-            /*
-             * 동시 클릭
-
-            List<Callable<Void>> callers = new ArrayList<>();
-            for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
-                Callable<Void> caller = new Callable<Void>() {
                     @Override
-                    public Void call() throws Exception {
-                        if(interval > 0) {
-                            try { Thread.sleep(interval); } catch(Exception ex) { }
+                    public Stats call() throws Exception {
+                        Stats stats = new Stats(name);
+                        List<Callable<Void>> simulCallers = new ArrayList<>();
+                        for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
+                            Callable<Void> simulCaller = new Callable<Void>() {
+                                @Override
+                                public Void call() throws Exception {
+                                    if(interval > 0) {
+                                        try { Thread.sleep(interval); } catch(Exception ex) { }
+                                    }
+                                    //
+                                    stats.incrementCall();
+                                    int status = request.execute();
+                                    if(status >= 200 && status < 300) {
+                                        stats.incrementSuccess();
+                                    } else if(status == 909) {
+                                        LOG.error("     - URLConnector Error");
+                                        stats.incrementFailure();
+                                    }
+                                    String msg = String.format(" > %s-%06d: %s", name, stats.getCall(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
+                                    LOG.debug(msg);
+                                    return null;
+                                }
+
+                            };
+                            simulCallers.add(simulCaller);
                         }
                         //
-                        stats.incrementCall();
-                        int status = urlc.get();
-                        //String str = (res == null ? "NULL" : (res.length() > 100 ? res.substring(0, 100) : res));
-                        if(status >= 200 && status < 300) {
-                            stats.incrementSuccess();
-                        } else if(status == 909) {
-                            System.err.printf("     - URLConnector Error");
-                            stats.incrementFailure();
-                        }
-                        System.out.printf(" > %s-%06d: %s %n", name, stats.getCall(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
-                        return null;
+                        ExecutorService executor = Executors.newFixedThreadPool(simulCallers.size());
+                        executor.invokeAll(simulCallers);
+                        executor.shutdown();
+
+                        return stats;
                     }
 
                 };
-                callers.add(caller);
+
+                if(setupRequest != null) {
+                  int status = setupRequest.execute();
+                  if(status >= 200 && status < 300) {
+                      LOG.debug(" * Init Success");
+                  } else {
+                      LOG.debug(" * Init Failure");
+                  }
+                }
+
+                tasks.add(caller);
+            } else {
+                // 순차적인 실행
+                Callable<Stats> caller = new Callable<Stats>() {
+
+                    @Override
+                    public Stats call() throws Exception {
+                        Stats stats = new Stats(name);
+                        for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
+                            if(interval > 0) {
+                                try {
+                                    Thread.sleep(interval);
+                                } catch(Exception ex) {
+                                }
+                            }
+                            //
+                            stats.incrementCall();
+                            int status = request.execute();
+                            if(status >= 200 && status < 300) {
+                                stats.incrementSuccess();
+                            } else {
+                                LOG.error("        -Error:: URLConnector");
+                                stats.incrementFailure();
+                            }
+                            String msg = String.format(" > %s-%06d: %s", name, stats.getCall(), ((status >= 200 && status < 300) ? "SUCCESS" : "FAIL"));
+                            LOG.debug(msg);
+                        }
+
+                        return stats;
+                    }
+
+                };
+
+                if(setupRequest != null) {
+                    int status = setupRequest.execute();
+                    if(status >= 200 && status < 300) {
+                        LOG.debug(" * Init Success");
+                    } else {
+                        LOG.debug(" * Init Failure");
+                    }
+                }
+
+                tasks.add(caller);
             }
-            //
-            ExecutorService executor = Executors.newFixedThreadPool(callers.size());
-            executor.invokeAll(callers);
-            executor.shutdown();
-            */
 
-            //return String.format("[%s] Clicks=%d (success=%d, failure:%d)", name, stats.getCall(), stats.getSuccess(), stats.getFailure());
-            return stats;
-          }
-
-        };
-
-        if(setupRequest != null) {
-          int status = setupRequest.execute();
-          //System.out.printf("---------------> %s%n", status);
-          if(status >= 200 && status < 300) {
-              LOG.debug(" * Init Success");
-          } else {
-              LOG.debug(" * Init Failure");
-          }
         }
-
-        tasks.add(caller);
-    }
-
 
     List<Future<Stats>> futures = null;
     int size = tasks == null ? 0 : tasks.size();
