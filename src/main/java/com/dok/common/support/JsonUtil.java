@@ -17,9 +17,7 @@ public class JsonUtil {
 
   public static String json2xml(String json) {
     String xml = null;
-    if(json == null || json.isEmpty()) {
-      return xml;
-    } else {
+    if(json != null && !json.isEmpty()) {
       //TypeReference<Object> typeRef = new TypeReference<Object>(){};
       try {
         ObjectMapper mapper = new ObjectMapper();
@@ -35,15 +33,13 @@ public class JsonUtil {
       } catch(Exception ex) {
         //System.err.println(ex.getMessage());
       }
-      return xml;
     }
+    return xml;
   }
 
   public static String xml2json(String xml) {
     String json = null;
-    if(xml == null || xml.isEmpty()) {
-      return json;
-    } else {
+    if(xml != null && !xml.isEmpty()) {
       //TypeReference<Object> typeRef = new TypeReference<Object>(){};
       try {
         //XmlMapper xmlMapper = new XmlMapper();
@@ -64,8 +60,8 @@ public class JsonUtil {
       } catch(Exception ex) {
         //System.err.println(ex.getMessage());
       }
-      return json;
     }
+    return json;
   }
 
 	public static void main(String[] args) throws Exception {
