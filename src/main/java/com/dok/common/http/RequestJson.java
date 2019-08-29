@@ -134,6 +134,7 @@ public class RequestJson implements Request {
 //      return params;
 //  }
 
+  @Override
   public String getResponseBody() {
     return responseBody;
   }
