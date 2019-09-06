@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dok.common.http.Request;
+import com.dok.common.http.RequestForm;
+import com.dok.common.support.ThreadUtil;
 
 public class Executor {
 
@@ -18,6 +20,22 @@ public class Executor {
     private final Logger LOG          = LoggerFactory.getLogger(this.getClass());
 
     private boolean      simul        = false;
+
+
+    public boolean setup(List<RequestForm> inits) {
+        if(inits != null && inits.size() > 0) {
+            inits.forEach(rf -> {
+                int status = rf.execute();
+                if(status >= 200 && status < 300) {
+                    LOG.debug(" * Execute success\n{}", rf.getResponseBody());
+                } else {
+                    LOG.debug(" * Execute failure");
+                }
+                ThreadUtil.sleep(1000);
+            });
+        }
+        return true;
+    }
 
 
     public Future<Stats> single(Request request, long delay) {
@@ -31,10 +49,7 @@ public class Executor {
             public Stats call() throws Exception {
                 Stats stats = new Stats(name);
                 if(delay > 0) {
-                    try {
-                        Thread.sleep(delay);
-                    } catch(Exception ex) {
-                    }
+                    ThreadUtil.sleep(delay);
                 }
                 //
                 stats.incrementCall();
@@ -88,7 +103,7 @@ public class Executor {
                                 @Override
                                 public Void call() throws Exception {
                                     if(interval > 0) {
-                                        try { Thread.sleep(interval); } catch(Exception ex) { }
+                                        ThreadUtil.sleep(interval);
                                     }
                                     //
                                     stats.incrementCall();
@@ -126,10 +141,7 @@ public class Executor {
                         Stats stats = new Stats(name);
                         for (int j = 0; (clickCount < 0 ? true : j < clickCount); j++) {
                             if(interval > 0) {
-                                try {
-                                    Thread.sleep(interval);
-                                } catch(Exception ex) {
-                                }
+                                ThreadUtil.sleep(interval);
                             }
                             //
                             stats.incrementCall();

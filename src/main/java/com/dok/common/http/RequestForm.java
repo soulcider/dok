@@ -29,16 +29,19 @@ public class RequestForm implements Request {
   private boolean             ping;
 
   private Connector           urlc;
+
+  private List<NameValuePair> headers;
   private List<NameValuePair> params;
 
   private String              responseBody;
 
 
-  private RequestForm(String url, Method method, boolean ping, Connector urlc, List<NameValuePair> params) {
+  private RequestForm(String url, Method method, boolean ping, Connector urlc, List<NameValuePair> headers, List<NameValuePair> params) {
     this.url = url;
     this.method = method;
     this.ping = ping;
     this.urlc = urlc;
+    this.headers = headers;
     this.params = params;
   }
 
@@ -82,6 +85,12 @@ private int get() {
       httpGet.setHeader("User-Agent", urlc.getUserAgent());
       httpGet.setHeader("Accept", urlc.getAccept());
       httpGet.setHeader("Accept-Language", urlc.getAcceptLanguage());
+      //httpGet.setHeader("Connection", "keep-alive");
+      if(headers != null && headers.size() > 0) {
+          headers.forEach( h -> {
+              httpGet.setHeader(h.getName(), h.getValue());
+          });
+      }
       httpGet.setConfig(config);
 
       if(params != null && params.size() > 0) {
@@ -131,6 +140,12 @@ private int get() {
       httpPost.setHeader("Content-Type", urlc.getContentType());
       httpPost.setHeader("Accept", urlc.getAccept());
       httpPost.setHeader("Accept-Language", urlc.getAcceptLanguage());
+      //httpPost.setHeader("Connection", "keep-alive");
+      if(headers != null && headers.size() > 0) {
+          headers.forEach( h -> {
+              httpPost.setHeader(h.getName(), h.getValue());
+          });
+      }
       httpPost.setConfig(config);
 
       if(params != null && params.size() > 0) {
@@ -207,6 +222,7 @@ private int get() {
     private Method              method = null;
     private boolean             ping   = false;
     private Connector           urlc   = null;
+    private List<NameValuePair> headers = new ArrayList<NameValuePair>();
     private List<NameValuePair> params = new ArrayList<NameValuePair>();
 
 
@@ -229,6 +245,34 @@ private int get() {
       this.urlc = urlc;
       return this;
     }
+
+
+
+    public Builder header(String name, String value) {
+      this.headers.add(new BasicNameValuePair(name, value));
+      return this;
+    }
+
+    public Builder headers(List<NameValuePair> headerList) {
+      if(headerList != null && headerList.size() > 0) {
+        this.headers.addAll(headerList);
+      }
+      return this;
+    }
+
+    public Builder headers(Map<String, String> headerMap) {
+      if(headerMap != null && headerMap.size() > 0) {
+          headerMap.forEach((k, v) -> {
+          if(k != null && !k.isEmpty()) {
+            this.headers.add(new BasicNameValuePair(k, v));
+          }
+        });
+      }
+      return this;
+    }
+
+
+
 
     public Builder param(String name, String value) {
       this.params.add(new BasicNameValuePair(name, value));
@@ -270,7 +314,7 @@ private int get() {
                 .build();
 
       }
-      return new RequestForm(url, method, ping, urlc, params);
+      return new RequestForm(url, method, ping, urlc, headers, params);
     }
 
   }
