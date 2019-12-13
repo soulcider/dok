@@ -54,11 +54,11 @@ public class CustomCaller  {
             .param("sm", "top_hty")
             .param("fbm", "0")
             .param("ie", "utf8")
-            .param("query", "\uD55C\uAD6D\uC5B8\uB860\uC0AC\uB9DD")
+            .param("query", "나경원소환조사")
             .build();
 
       int userCount = Runtime.getRuntime().availableProcessors();
-      int clickCount= 1000;
+      int clickCount= -1;
       long interval= 1000;
       Executor executor = new Executor();
       List<Future<Stats>> futures = executor.multiple(search, userCount, clickCount, interval);
