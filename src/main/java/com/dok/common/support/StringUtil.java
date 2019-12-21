@@ -64,14 +64,28 @@ public class StringUtil {
         }
     }
 
-    public static void main(String[] args) {
-        String val = "123456";
+	public static String substringFrom(String str, char fromSeperator) {
+		if (str == null) {
+			return str;
+		}
+		int pos = str.indexOf(fromSeperator);
+		if (pos < 0) {
+			return str;
+		} else {
+			return str.substring(pos+1);
+		}
+	}
 
-        System.out.println(StringUtil.lpad(val, 9));
-        System.out.println(StringUtil.lpad(val, 9, '0'));
-        System.out.println(StringUtil.lpad(val, 4));
-        System.out.println(StringUtil.rpad(val, 9));
-        System.out.println(StringUtil.rpad(val, 9, '0'));
-        System.out.println(StringUtil.rpad(val, 4));
-    }
+	public static String substringTo(String str, char toSeperator) {
+		if (str == null) {
+			return str;
+		}
+		int pos = str.lastIndexOf(toSeperator);
+		if (pos < 0) {
+			return str;
+		} else {
+			return str.substring(0, pos);
+		}
+	}
+
 }
